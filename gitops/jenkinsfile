@@ -1,1 +1,39 @@
 #jenkins file
+pipeline {
+agent any
+
+stages {
+  stage('Terraform Init') {
+    steps {
+          dir('./gitops') {
+                    sh 'usr/local/bin/terrform init'
+          }
+    }
+  }
+  stage('Terraform Plan') {
+    steps {
+          dir('./gitops') {
+                    sh 'usr/local/bin/terrform plan'
+          }
+    }
+  }
+  stage('Approval'){
+    when { branch 'main'}
+      steps {
+        script {
+          waitUntil {
+                    fileexists('dummyfile')
+          }
+        }
+    }
+  stage('Terraform Apply') {
+    steps {
+          dir('./gitops'){
+                    sh 'usr/local/bin/terrform apply -auto-approve'
+          }
+    }
+  }
+
+}
+}
+  
